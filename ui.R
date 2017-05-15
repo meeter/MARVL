@@ -1,38 +1,44 @@
 library(shiny)
+library(rCharts)
 
-renderInputs <- function(prefix) {
-   absolutePanel(top = 60, left = 0, right = 0,
-    fixed = TRUE, style = "opacity: 0.9",
-    div(
-      style="padding: 8px; border-bottom: 1px solid #CCC; background: #FFFFEE;",	
-     fluidRow(
-       column(6,textInput("NAME", "Input Gene Symbol: e.g., Dgcr8", value = "Dgcr8"))
-       ),
-       submitButton("Submit")
-         #tags$a(href="https://genome.ucsc.edu/cgi-bin/hgTracks?db=mm10&position=chr15%3A12824815-12935291&hgsid=454727657_A6ynhaMAO3PirpGrkHbn1uZM0pxx", "UCSC session Link for all data", align="center")
- 			 )
- 								)       
-}
-
-shinyUI(fluidPage(theme="simplex.min.css",
-  								tags$style(type="text/css",
-    							"label {font-size: 12px;}",
-    							".recalculating {opacity: 1.0;}"
+shinyUI(fluidPage(
+  titlePanel("CCLAB  RNAi-Mutant Sequencing Data"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      tags$textarea(id="NAME", rows=5, cols=40, "Dgcr8\nDrosha\nDicer1\nAgo1\nAgo2"),
+      helpText("Note: Input should be Official Gene Symbol, e.g., Dicer1. Multiple names should be seperated with ENTER"),
+      checkboxInput(inputId = "Dgcr8",
+                    label = strong("Include Dgcr8 KO"),
+                    value = TRUE),
+      checkboxInput(inputId = "Drosha",
+                    label = strong("Include Drosha KO"),
+                    value = TRUE),
+      checkboxInput(inputId = "Dicer",
+                    label = strong("Include Dicer KO"),
+                    value = TRUE),
+      checkboxInput(inputId = "Ago12",
+                    label = strong("Include Ago12"),
+                    value = TRUE),
+      checkboxInput(inputId = "WT",
+                    label = strong("Include WT"),
+                    value = TRUE),
+      submitButton("Submit"),
+      helpText("Following Genes cannot be found; It is either not expressed or the gene name cannot be matched"),
+      textOutput("MissGene")
 ),
-##Application title
-	tags$h2("CCLAB  RNAi-Mutant Sequencing Data",align="center"),
-	fluidRow(
-		tags$br(" "),
-    tags$br(""),	
-    tags$br(""),
-    tags$br(""),
-		helpText("Following Genes cannot be found; It is either not expressed or the gene name cannot be matched"),
-		textOutput("MissGene"), 
-    column(6, renderInputs("Gene Abundance in E14"))
-    ),
-    column(8, align="center", 
-    plotOutput("E14_Exp",height="800px",width="800px")
-    )
+    mainPanel(
+      tabsetPanel(
+        tabPanel("Data Table", dataTableOutput("Data")),
+        tabPanel('Scatter Plot', plotOutput("E14_Exp",height="600px",width="640px")),
+        tabPanel('Heatmap', plotOutput(outputId = "Heatmap", height="800"))
+      ))
+)
 ))
+
+
+	
+
+
 
 
