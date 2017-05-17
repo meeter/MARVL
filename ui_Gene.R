@@ -16,6 +16,8 @@ tabPanel("Gene",
     tabsetPanel(
       tabPanel("Data Table", dataTableOutput("Data")),
       tabPanel('Scatter Plot', plotOutput("E14_Exp",height="600px",width="640px")),
-      tabPanel('Heatmap', plotOutput(outputId = "Heatmap", height="800"))
+      tabPanel('Heatmap', plotlyOutput("Heatmap")),
+      tabPanel("Gene <-> miRNA", plotlyOutput("Dotsplot_Gene"),
+               verbatimTextOutput("brush_Gene"))
     ))
 ))

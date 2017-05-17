@@ -16,7 +16,10 @@ tabPanel("miRNA",
                          tabsetPanel(
                            tabPanel("Data Table", dataTableOutput("Data_MIR")),
                            tabPanel('Scatter Plot', plotOutput("E14_Exp_MIR",height="600px",width="640px")),
-                           tabPanel('Heatmap', plotOutput("Heatmap_MIR", height="800")),
-                           tabPanel("RIP-seq", plotOutput("RIP_MIR", height="600"))
+                           tabPanel('Heatmap', plotlyOutput("Heatmap_MIR")),
+                           tabPanel("RIP-seq", plotOutput("RIP_MIR", height="600")),
+                           tabPanel("miRNA <-> Gene", dataTableOutput("Data_Dots"),
+                                    plotlyOutput("Dotsplot_MIR"),
+                                    verbatimTextOutput("brush_MIR"))
                          ))
          ))

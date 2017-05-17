@@ -17,7 +17,7 @@ tagList(
     tags$style(HTML(" .shiny-output-error-validation {color: darkred; } ")),
     tags$style(".mybuttonclass{background-color:#CD0000;} .mybuttonclass{color: #fff;} .mybuttonclass{border-color: #9E0000;}")
   ),
-  titlePanel("MARVL: a Mirna And Rna-seq integrated VisuaLization web-service"),
+  titlePanel(div("MARVL: a Mirna And Rna-seq integrated VisuaLization web-service", align="center", style="color:darkred")),
   navbarPage(
     
     theme = "bootstrap.min.united.updated.css",

@@ -24,12 +24,12 @@ ScatterplotMIR <- function(input, data) {
       geom_point(size=2, aes(color=Col)) +
       geom_point(data=subset(data, Col == "Hit"), aes(WT_1, WT_2, color=Col), size=2) +
       scale_color_manual(values=c("brown", alpha("lightgrey", 0.5))) +
-      geom_text_repel(data=subset(data, Col == "Hit"), aes(label = ID), 
-                      size=4, color='brown', box.padding = unit(0.15, "lines"),
+      geom_label_repel(data=subset(data, Col == "Hit"), aes(label = ID), 
+                       label.size=0.5, color='brown', box.padding = unit(0.15, "lines"),
                       point.padding = unit(1, "lines")) +
       xlab(paste0("WT_1")) +
       ylab(paste0("WT_2")) + 
-      ggtitle("TPM of All Expressed miRNAs in WT") + 
+      ggtitle("Log2-Normalized Counts of miRNAs in WT") + 
       theme_bw(base_size = 16)
     print(p)
   }
@@ -46,31 +46,35 @@ TableMIR <- function(input, data) {
 ############################################################
 #####Function 4: Heatmap
 ############################################################
-HeatmapMIR <- function(input, data) {
+HeatmapMIR <- function(input, WT_MIR) {
   NAME <- paste("mmu-", GetName(input$NAME_MIR), sep="")
-  outfile <- tempfile(fileext='.png')
-  png(outfile, width=700, height=632.44 + 11.66 * nrow(data[match(tolower(NAME), tolower(data$"ID")),]))
+  #outfile <- tempfile(fileext='.png')
+  #png(outfile, width=800, height=700 + 11.66 * nrow(data[match(tolower(NAME), tolower(data$"ID")),])) #632.44
   #heatmap.data <- data[match(NAME, data$ID), 7:11]
-  heatmap.data <- data[match(tolower(NAME), tolower(data$ID)), c(GetIndex_MIR(input),1)]
+  heatmap.data <- WT_MIR[match(tolower(NAME), tolower(WT_MIR$ID)), c(GetIndex_MIR(input),1)]
   heatmap.data <- heatmap.data[complete.cases(heatmap.data),] #Remove DataTable with unmatched Gene Symbol 
-  dend.col<-as.dendrogram(
-    hclust(as.dist(1-cor(scale(as.matrix(heatmap.data[,1:(ncol(heatmap.data)-1)])),method="pearson")),method = "complete", members=NULL))
-  dend.row<-as.dendrogram(
-    hclust(as.dist(1-cor(scale(t(as.matrix(heatmap.data[,1:(ncol(heatmap.data)-1)]))),method="pearson")),method = "complete", members=NULL))
-  ColSideColors <- GetColor_MIR(input)$col
-  heatmap.2(as.matrix(heatmap.data[,1:(ncol(heatmap.data)-1)]),dendrogram="row", Colv=F, Rowv=dend.row,
-            col=bluered(1000),scale="row",ColSideColors=ColSideColors,
-            key=T,keysize=0.8,symkey=FALSE, lhei=c(0.55,4),
-            density.info="none", trace="none",cexRow=1.6,cexCol=1.6,margin=c(14,24),
-            labRow = heatmap.data[,"ID"],main="Heatmap of Interested miRNAs"
-  )
-  legend("topright", fill=unique(ColSideColors), cex=1.2, bty="n", legend=unique(GetColor_MIR(input)$leg))
-  dev.off()
-  return(list(src = outfile,
-       contentType = 'image/png',
-       width = 800,
-       height = 632.44 + 11.66 * nrow(data[match(tolower(NAME), tolower(data$"ID")),]),
-       alt = "This is alternate text"))
+  #dend.col<-as.dendrogram(
+  #  hclust(as.dist(1-cor(scale(as.matrix(heatmap.data[,1:(ncol(heatmap.data)-1)])),method="pearson")),method = "complete", members=NULL))
+  #dend.row<-as.dendrogram(
+  #  hclust(as.dist(1-cor(scale(t(as.matrix(heatmap.data[,1:(ncol(heatmap.data)-1)]))),method="pearson")),method = "complete", members=NULL))
+  #ColSideColors <- GetColor_MIR(input)$col
+  #heatmap.2(as.matrix(heatmap.data[,1:(ncol(heatmap.data)-1)]),dendrogram="none", Colv=F, Rowv=F,
+  #          col=bluered(1000),scale="row",ColSideColors=ColSideColors,
+  #          key=T,keysize=0.8,symkey=FALSE, lhei=c(0.55,4),
+  #          density.info="none", trace="none",cexRow=1.6,cexCol=1.6, #margin=c(14,24),
+  #          labRow = heatmap.data[,"ID"],main="Heatmap of Interested miRNAs"
+  #)
+  #legend("topright", fill=unique(ColSideColors), cex=1.2, bty="n", legend=unique(GetColor_MIR(input)$leg))
+  plot_ly(y = heatmap.data$ID, x = colnames(heatmap.data)[1:(ncol(heatmap.data)-1)], 
+          z = as.matrix(heatmap.data[,1:(ncol(heatmap.data)-1)]), colorscale = "PuRd", type = "heatmap",
+          height=550) %>%
+    layout(xaxis = list(title = ""),  yaxis = list(title = ""), margin = list(l = 120, b = 100))
+  #dev.off()
+  #return(list(src = outfile,
+  #     contentType = 'image/png',
+  #     width = 800,
+  #     height = 700 + 11.66 * nrow(data[match(tolower(NAME), tolower(data$"ID")),]),
+  #     alt = "This is alternate text"))
 }
 
 ############################################################
@@ -85,9 +89,31 @@ BarplotMIR <- function(input, data) {
     #scale_y_discrete(limits = value) + 
     geom_bar(position="dodge",stat="identity", width=0.5) + 
     #geom_line(data=BioType.long, aes(x=Var1, y=Cutoff)) +
-    coord_flip() +
+    coord_flip() + xlab("") +
     ggtitle("Log2FC Comparing Ago1/2-RIP in E14 with KO")
   print(p1)
+}
+
+############################################################
+#####Function 6: Dots plot for miR2Gene
+############################################################
+miR2Gene <- function(input, GeneTE_1.tpm, WT_MIR, miR_Gene.MW.sel){
+  NAME <- GetName(input$NAME_MIR)
+  tmp <- miR_Gene.MW.sel[!is.na(match(tolower(gsub("mmu-", "", miR_Gene.MW.sel[,1])), tolower(NAME))),]
+  tmp <- subset(tmp, abs(spearman) > 0.85)
+  tmp <- merge(tmp, GeneTE_1.tpm[, 7:17], by="gene_name", all.x=T)
+  tmp <- merge(tmp, WT_MIR[, 1:11], by="ID", all.x=T)
+  colnames(tmp) <- gsub(".y", "_miR", gsub(".x", "_Gene", colnames(tmp)))
+  tmp$ID <- gsub("mmu-", "", tmp$ID)
+  tmp$ID <- factor(tmp$ID)
+  tmp
+}
+
+miR2Gene_plot <- function(tmp){
+  p <- ggplot(tmp, aes(ID, spearman))
+  p3 <- p + geom_point(position = position_jitter(width = 0.2))
+  p3 <- p3 + coord_flip() + xlab("")
+  ggplotly(p3) %>% layout(dragmode = "select")
 }
 
 
