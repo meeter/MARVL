@@ -1,5 +1,5 @@
 library(shiny)
-library(rCharts)
+library(plotly)
 
 customHeaderPanel <- function(title,windowTitle=title){
   tagList(
@@ -33,8 +33,9 @@ tagList(
     source("ui_miRNA.R",local=TRUE)$value,
     
     ## ============================================================================ ##
-    ## INFO TAB
+    ## HELP TAB
     ## ============================================================================ ##   
+    source("Help.R",local=TRUE)$value,
     
     ## ==================================================================================== ##
     ## FOOTER

@@ -67,7 +67,7 @@ HeatmapMIR <- function(input, WT_MIR) {
   #legend("topright", fill=unique(ColSideColors), cex=1.2, bty="n", legend=unique(GetColor_MIR(input)$leg))
   plot_ly(y = heatmap.data$ID, x = colnames(heatmap.data)[1:(ncol(heatmap.data)-1)], 
           z = as.matrix(heatmap.data[,1:(ncol(heatmap.data)-1)]), colorscale = "PuRd", type = "heatmap",
-          height=550) %>%
+          colorbar = list(title = "Log2-Normalized Count"), height=550) %>%
     layout(xaxis = list(title = ""),  yaxis = list(title = ""), margin = list(l = 120, b = 100))
   #dev.off()
   #return(list(src = outfile,
@@ -89,7 +89,7 @@ BarplotMIR <- function(input, data) {
     #scale_y_discrete(limits = value) + 
     geom_bar(position="dodge",stat="identity", width=0.5) + 
     #geom_line(data=BioType.long, aes(x=Var1, y=Cutoff)) +
-    coord_flip() + xlab("") +
+    coord_flip() + xlab("") + ylab("Log2FC")
     ggtitle("Log2FC Comparing Ago1/2-RIP in E14 with KO")
   print(p1)
 }

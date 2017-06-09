@@ -65,7 +65,7 @@ HeatmapGene <- function(input, GeneTE_1.tpm) {
   #legend("topright", fill=unique(ColSideColors), cex=1.2, bty="n", legend=unique(GetColor_Gene(input)$leg))
   plot_ly(y = heatmap.data$gene_name, x = colnames(heatmap.data)[1:(ncol(heatmap.data)-1)], 
           z = as.matrix(heatmap.data[,1:(ncol(heatmap.data)-1)]), colorscale = "Oranges", type = "heatmap",
-          height = 550
+          colorbar = list(title = "Log2-TPM"), height = 550
           ) %>%
     layout(xaxis = list(title = ""),  yaxis = list(title = ""), margin = list(l = 100, b = 100))
   #dev.off()

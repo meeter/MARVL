@@ -38,7 +38,7 @@ shinyServer(function(input, output) {
   output$brush_Gene <- renderPrint({
     tmp <- Gene2miR(input, GeneTE_1.tpm, WT_MIR, miR_Gene.MW.sel)
     d <- event_data("plotly_selected")
-    if (is.null(d)) "Selected events appear here (double-click to clear)" 
+    if (is.null(d)) "Selected events appear here (double-click to clear); Negative values indicate negative correlation" 
       else {
         tmp[d[["pointNumber"]]+1, c("ID","gene_name","spearman","spearman.p", "WT_1_Gene", "WT_2_Gene", "WT_1_miR","WT_2_miR")]
       }
@@ -76,7 +76,7 @@ shinyServer(function(input, output) {
   output$brush_MIR <- renderPrint({
     tmp <- miR2Gene(input, GeneTE_1.tpm, WT_MIR, miR_Gene.MW.sel)
     d <- event_data("plotly_selected")
-    if (is.null(d)) "Selected events appear here (double-click to clear)" 
+    if (is.null(d)) "Selected events appear here (double-click to clear); Negative values indicate negative correlation" 
     else {
       tmp[d[["pointNumber"]]+1, c("ID","gene_name","spearman","spearman.p", "WT_1_Gene", "WT_2_Gene", "WT_1_miR","WT_2_miR")]
     }
