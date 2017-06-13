@@ -14,11 +14,11 @@ getMissGenes <- function(input, data) {
 #####Function 2: ScatterPlot
 ############################################################
 ScatterplotGene <- function(input, data) {
-  NAME <- GetName(input$NAME)
-  if (is.na(match(tolower(NAME), tolower(data$gene_name)))) {message("Check Gene Name")
+  NAME <- tolower(GetName(input$NAME))
+  if (is.na(match(NAME, tolower(data$gene_name)))) {message("Check Gene Name")
   } else {
-    NAME <- intersect(NAME, data$gene_name)
-    data$Col <- ifelse(!is.na(match(data$gene_name, NAME)), "Hit", "Others")
+    NAME <- intersect(NAME, tolower(data$gene_name))
+    data$Col <- ifelse(!is.na(match(tolower(data$gene_name), NAME)), "Hit", "Others")
     #data$Size <- ifelse(!is.na(match(data$gene_name, NAME)), 1.1, 1)
     p <- ggplot(data[1:2000,], aes(WT_1, WT_2)) +
       geom_point(size=2, aes(color=Col)) +

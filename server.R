@@ -3,6 +3,7 @@ library(ggrepel)
 library(gplots)
 library(reshape2)
 library(plotly)
+library(rmarkdown)
 load("WT.RData")
 
 source("server_GeneralFun.R", local=TRUE)
