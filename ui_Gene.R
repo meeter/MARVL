@@ -1,7 +1,7 @@
 tabPanel("Gene", 
          fluidRow(column(4, 
                   wellPanel(
-                  tags$textarea(id="NAME", rows=5, cols=10, "Dgcr8\nDrosha\nDicer1\nAgo1\nAgo2"),
+                  tags$textarea(id="NAME", rows=5, cols=10, "Drosha\nDgcr8\nDicer1\nAgo1\nAgo2"),
                   helpText("Note: Input should be Official Gene Symbol, e.g., Dicer1. Multiple names should be seperated with ENTER"),
                   checkboxInput(inputId = "Dgcr8", label = strong("Include Dgcr8 KO"), value = TRUE),
                   checkboxInput(inputId = "Drosha", label = strong("Include Drosha KO"), value = TRUE),

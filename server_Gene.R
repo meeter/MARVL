@@ -52,6 +52,8 @@ HeatmapGene <- function(input, GeneTE_1.tpm) {
   #png(outfile, width=700, height=700 + 11.66 * nrow(data[match(GetName(tolower(input$NAME)), tolower(data$"gene_name")),]))
   heatmap.data <- GeneTE_1.tpm[match(tolower(NAME), tolower(GeneTE_1.tpm$gene_name)), c(GetIndex_Gene(input),7)]
   heatmap.data <- heatmap.data[complete.cases(heatmap.data),] #Remove DataTable with unmatched Gene Symbol 
+  row.names(heatmap.data) <- gsub("mmu-", "", heatmap.data[, ncol(heatmap.data)])
+  heatmap.data <- heatmap.data[, -ncol(heatmap.data)]
   #dend.col<-as.dendrogram(
     #hclust(as.dist(1-cor(scale(as.matrix(heatmap.data[,1:(ncol(heatmap.data)-1)])),method="pearson")),method = "complete", members=NULL))
   #dend.row<-as.dendrogram(
@@ -63,11 +65,15 @@ HeatmapGene <- function(input, GeneTE_1.tpm) {
   #          density.info="none", trace="none",cexRow=1.6,cexCol=1.6, margin=c(2,2),
   #          labRow = heatmap.data[,"gene_name"],main="Heatmap of Interested Genes"
   #legend("topright", fill=unique(ColSideColors), cex=1.2, bty="n", legend=unique(GetColor_Gene(input)$leg))
-  plot_ly(y = heatmap.data$gene_name, x = colnames(heatmap.data)[1:(ncol(heatmap.data)-1)], 
-          z = as.matrix(heatmap.data[,1:(ncol(heatmap.data)-1)]), colorscale = "Oranges", type = "heatmap",
-          colorbar = list(title = "Log2-TPM"), height = 550
-          ) %>%
-    layout(xaxis = list(title = ""),  yaxis = list(title = ""), margin = list(l = 100, b = 100))
+  #plot_ly(y = heatmap.data$gene_name, x = colnames(heatmap.data)[1:(ncol(heatmap.data)-1)], 
+  #        z = as.matrix(heatmap.data[,1:(ncol(heatmap.data)-1)]), colorscale = "Oranges", type = "heatmap",
+  #        colorbar = list(title = "Log2-TPM"), height = 550
+  #        ) %>%
+  #  layout(xaxis = list(title = ""),  yaxis = list(title = ""), margin = list(l = 100, b = 100))
+  heatmaply(heatmap.data, scale='none', Rowv=F, Colv=F, 
+            scale_fill_gradient_fun = scale_fill_gradient2(low = "skyblue", high = "red", midpoint = 5),
+            key.title="Log2-TPM", margins=c(120,100)
+  )
   #dev.off()
   #list(src = outfile,
   #     contentType = 'image/png',

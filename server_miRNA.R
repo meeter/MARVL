@@ -53,6 +53,8 @@ HeatmapMIR <- function(input, WT_MIR) {
   #heatmap.data <- data[match(NAME, data$ID), 7:11]
   heatmap.data <- WT_MIR[match(tolower(NAME), tolower(WT_MIR$ID)), c(GetIndex_MIR(input),1)]
   heatmap.data <- heatmap.data[complete.cases(heatmap.data),] #Remove DataTable with unmatched Gene Symbol 
+  row.names(heatmap.data) <- gsub("mmu-", "", heatmap.data[, ncol(heatmap.data)])
+  heatmap.data <- heatmap.data[, -ncol(heatmap.data)]
   #dend.col<-as.dendrogram(
   #  hclust(as.dist(1-cor(scale(as.matrix(heatmap.data[,1:(ncol(heatmap.data)-1)])),method="pearson")),method = "complete", members=NULL))
   #dend.row<-as.dendrogram(
@@ -65,10 +67,14 @@ HeatmapMIR <- function(input, WT_MIR) {
   #          labRow = heatmap.data[,"ID"],main="Heatmap of Interested miRNAs"
   #)
   #legend("topright", fill=unique(ColSideColors), cex=1.2, bty="n", legend=unique(GetColor_MIR(input)$leg))
-  plot_ly(y = heatmap.data$ID, x = colnames(heatmap.data)[1:(ncol(heatmap.data)-1)], 
-          z = as.matrix(heatmap.data[,1:(ncol(heatmap.data)-1)]), colorscale = "PuRd", type = "heatmap",
-          colorbar = list(title = "Log2-Normalized Count"), height=550) %>%
-    layout(xaxis = list(title = ""),  yaxis = list(title = ""), margin = list(l = 120, b = 100))
+  #plot_ly(y = heatmap.data$ID, x = colnames(heatmap.data)[1:(ncol(heatmap.data)-1)], 
+  #        z = as.matrix(heatmap.data[,1:(ncol(heatmap.data)-1)]), colorscale = "PuRd", type = "heatmap",
+  #        colorbar = list(title = "Log2-Normalized Count"), height=550) %>%
+  #  layout(xaxis = list(title = ""),  yaxis = list(title = ""), margin = list(l = 120, b = 100))
+  heatmaply(heatmap.data, scale='none', Rowv=F, Colv=F, 
+            scale_fill_gradient_fun = scale_fill_gradient2(low = "skyblue", high = "red", midpoint = 5),
+            key.title="Log2-Normalized Count", margins=c(120,100)
+            )
   #dev.off()
   #return(list(src = outfile,
   #     contentType = 'image/png',
