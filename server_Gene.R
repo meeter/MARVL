@@ -65,15 +65,15 @@ HeatmapGene <- function(input, GeneTE_1.tpm) {
   #          density.info="none", trace="none",cexRow=1.6,cexCol=1.6, margin=c(2,2),
   #          labRow = heatmap.data[,"gene_name"],main="Heatmap of Interested Genes"
   #legend("topright", fill=unique(ColSideColors), cex=1.2, bty="n", legend=unique(GetColor_Gene(input)$leg))
-  #plot_ly(y = heatmap.data$gene_name, x = colnames(heatmap.data)[1:(ncol(heatmap.data)-1)], 
-  #        z = as.matrix(heatmap.data[,1:(ncol(heatmap.data)-1)]), colorscale = "Oranges", type = "heatmap",
-  #        colorbar = list(title = "Log2-TPM"), height = 550
-  #        ) %>%
-  #  layout(xaxis = list(title = ""),  yaxis = list(title = ""), margin = list(l = 100, b = 100))
-  heatmaply(heatmap.data, scale='none', Rowv=F, Colv=F, 
-            scale_fill_gradient_fun = scale_fill_gradient2(low = "skyblue", high = "red", midpoint = 5),
-            key.title="Log2-TPM", margins=c(120,100)
-  )
+  plot_ly(y = row.names(heatmap.data), x = colnames(heatmap.data)[1:(ncol(heatmap.data)-1)], 
+          z = as.matrix(heatmap.data[,1:(ncol(heatmap.data)-1)]), colors = colorRamp(c("skyblue", "white", "red")),
+          type = "heatmap", colorbar = list(title = "Log2-TPM"), height = 300+11.66*nrow(heatmap.data)
+          ) %>%
+    layout(xaxis = list(title = ""),  yaxis = list(title = ""), margin = list(l = 100, b = 100))
+  #heatmaply(heatmap.data, scale='none', Rowv=F, Colv=F, 
+  #          scale_fill_gradient_fun = scale_fill_gradient2(low = "skyblue", high = "red", midpoint = 5),
+  #          key.title="Log2-TPM", margins=c(120,100)
+  #)
   #dev.off()
   #list(src = outfile,
   #     contentType = 'image/png',
@@ -101,7 +101,8 @@ Gene2miR_plot <- function(tmp){
   p <- ggplot(tmp, aes(gene_name, spearman))
   p3 <- p + geom_point(position = position_jitter(width = 0.2))
   p3 <- p3 + coord_flip() + xlab("")
-  ggplotly(p3) %>% layout(dragmode = "select")
+  ggplotly(p3, width=600, height = 300 + 2.66 * length(unique(tmp$ID)) ) %>% 
+  layout(dragmode = "select")
 }
 
   

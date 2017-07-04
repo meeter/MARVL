@@ -5,10 +5,14 @@ library(reshape2)
 library(plotly)
 library(markdown)
 library(heatmaply)
+library(scales)
+
+load("WT.RData")
 
 source("server_GeneralFun.R", local=TRUE)
 source("server_Gene.R", local=TRUE)
 source("server_miRNA.R", local=TRUE)
+source("ggbiplot.R", local=TRUE)
 
 
 shinyServer(function(input, output) {
@@ -80,6 +84,30 @@ shinyServer(function(input, output) {
     if (is.null(d)) "Selected events appear here (double-click to clear); Negative values indicate negative correlation" 
     else {
       tmp[d[["pointNumber"]]+1, c("ID","gene_name","spearman","spearman.p", "WT_1_Gene", "WT_2_Gene", "WT_1_miR","WT_2_miR")]
+    }
+  })
+  output$Dotsplot_Biplot <- renderPlotly({
+    NAME <- GetName(input$NAME_MIR)
+    tmp <- prcomp(all.res.mds[, 2:7], scale=T, center=F)
+    p.biplot <- ggbiplot(tmp, obs.scale = 1, var.scale = 1, alpha=0.5, 
+                         #labels.size = 2, labels = all.res.mds$ID, 
+                         groups = all.res.mds$miRTron, ellipse = TRUE, ellipse.prob = 0.95, circle = F) +
+      scale_color_discrete(name = '') +
+      #geom_text_repel(aes(label=all.res.mds$ID, col = all.res.mds$miRTron)) + 
+      xlim(-5,3)  + ylim(-2,2)
+      #theme(legend.direction = 'horizontal', legend.position = 'bottom') 
+    ggplotly(p.biplot, source="A", height=400, width=800) %>% 
+             layout(dragmode = "select")
+            
+  })
+  output$brush_Biplot <- renderPrint({
+    d <- event_data("plotly_hover", source="A")
+    tmp <- prcomp(all.res.mds[, 2:7], scale=T, center=F)
+    if (is.null(d)) "Selected miRNA appear here (double-click to clear);" 
+    else {
+      row.names(tmp$x)[grep(d[["x"]], tmp$x[, "PC1"])]
+      #tmp$x[intersect(grep(d[["xvar"]], tmp$x[, "PC1"]), grep(d[["yvar"]], tmp$x[, "PC1"])), c("PC1", "PC2")]
+      #all.res.mds[d[["pointNumber"]]+1, c("E14_P25","E14_P33","Dgcr8_Log2FC","Drosha_Log2FC","Dicer_Log2FC","Ago12_Log2FC")]
     }
   })
 })

@@ -67,14 +67,14 @@ HeatmapMIR <- function(input, WT_MIR) {
   #          labRow = heatmap.data[,"ID"],main="Heatmap of Interested miRNAs"
   #)
   #legend("topright", fill=unique(ColSideColors), cex=1.2, bty="n", legend=unique(GetColor_MIR(input)$leg))
-  #plot_ly(y = heatmap.data$ID, x = colnames(heatmap.data)[1:(ncol(heatmap.data)-1)], 
-  #        z = as.matrix(heatmap.data[,1:(ncol(heatmap.data)-1)]), colorscale = "PuRd", type = "heatmap",
-  #        colorbar = list(title = "Log2-Normalized Count"), height=550) %>%
-  #  layout(xaxis = list(title = ""),  yaxis = list(title = ""), margin = list(l = 120, b = 100))
-  heatmaply(heatmap.data, scale='none', Rowv=F, Colv=F, 
-            scale_fill_gradient_fun = scale_fill_gradient2(low = "skyblue", high = "red", midpoint = 5),
-            key.title="Log2-Normalized Count", margins=c(120,100)
-            )
+  plot_ly(y = row.names(heatmap.data), x = colnames(heatmap.data)[1:(ncol(heatmap.data)-1)], 
+          z = as.matrix(heatmap.data[,1:(ncol(heatmap.data)-1)]), colors = colorRamp(c("skyblue", "white", "red")), 
+          type = "heatmap", colorbar = list(title = "Log2-Normalized Count")) %>%
+    layout(xaxis = list(title = ""),  yaxis = list(title = ""), margin = list(l = 120, b = 100))
+  #heatmaply(heatmap.data, scale='none', Rowv=F, Colv=F, subplot_widths=840,
+  #          scale_fill_gradient_fun = scale_fill_gradient2(low = "skyblue", high = "red", midpoint = 5),
+  #          key.title="Log2-Normalized Count", margins=c(120,100)
+  #          )
   #dev.off()
   #return(list(src = outfile,
   #     contentType = 'image/png',
@@ -90,7 +90,7 @@ BarplotMIR <- function(input, data) {
   NAME <- paste("mmu-", GetName(input$NAME_MIR), sep="")
   RIP.long <- melt(RIP[match(NAME, RIP$ID), ])
   RIP.long <- RIP.long[!is.na(RIP.long[,1]),]
-  RIP.long$ID <- as.character(RIP.long$ID)
+  RIP.long$ID <- gsub("mmu-", "", as.character(RIP.long$ID))
   p1 <- ggplot(data=RIP.long, aes(x=ID,y=value, fill=variable)) +
     #scale_y_discrete(limits = value) + 
     geom_bar(position="dodge",stat="identity", width=0.5) + 
@@ -119,7 +119,26 @@ miR2Gene_plot <- function(tmp){
   p <- ggplot(tmp, aes(ID, spearman))
   p3 <- p + geom_point(position = position_jitter(width = 0.2))
   p3 <- p3 + coord_flip() + xlab("")
-  ggplotly(p3) %>% layout(dragmode = "select")
+  ggplotly(p3, width=700, height = 300 + 11.66 * length(unique(tmp$ID)) ) %>% layout(dragmode = "select")
+}
+
+############################################################
+#####Function 7: Biplot
+############################################################
+Biplot <- function(input) {
+  NAME <- GetName(input$NAME_MIR)
+  colnames(all.res.mds)[2:7] <- gsub("log2FoldChange","Log2FC", colnames(all.res.mds)[2:7])
+  colnames(all.res.mds)[2:3] <- c("WT_1","WT_2")
+  p.biplot <- ggbiplot(prcomp(all.res.mds[, 2:7], scale=T, center=F), obs.scale = 1, var.scale = 1, alpha=0.5, 
+                       #labels.size = 2, labels = all.res.mds$ID, 
+                       groups = all.res.mds$miRTron, ellipse = TRUE, ellipse.prob = 0.95, circle = F) +
+              scale_color_discrete(name = '') +
+              geom_text_repel(aes(label=all.res.mds$ID, col = all.res.mds$miRTron)) + 
+              xlim(-5,4) + 
+              theme(legend.direction = 'horizontal', legend.position = 'bottom')
+
+  ggplotly(p.biplot,  source="biplot") %>% layout(dragmode = "select") %>%
+          layout(autosize = T, width = 800, height=400)
 }
 
 
