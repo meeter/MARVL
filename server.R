@@ -6,12 +6,15 @@ library(plotly)
 library(markdown)
 library(heatmaply)
 library(scales)
+library(igraph)
+library(visNetwork)
 
 load("WT.RData")
 
 source("server_GeneralFun.R", local=TRUE)
 source("server_Gene.R", local=TRUE)
 source("server_miRNA.R", local=TRUE)
+source("server_Network.R", local=TRUE)
 source("ggbiplot.R", local=TRUE)
 
 
@@ -48,7 +51,16 @@ shinyServer(function(input, output) {
         tmp[d[["pointNumber"]]+1, c("ID","gene_name","spearman","spearman.p", "WT_1_Gene", "WT_2_Gene", "WT_1_miR","WT_2_miR")]
       }
   })
-  
+
+#################################################################
+#####For Network
+#################################################################  
+  output$MissGene_NET <- renderText({
+    getMissGenes(input, GeneTE_1.tpm)
+  })  
+  output$network <- renderVisNetwork({
+    plotNetwork(input)
+})
   
 #################################################################
 #####For miRNA Level
