@@ -67,8 +67,8 @@ HeatmapMIR <- function(input, WT_MIR) {
   #          labRow = heatmap.data[,"ID"],main="Heatmap of Interested miRNAs"
   #)
   #legend("topright", fill=unique(ColSideColors), cex=1.2, bty="n", legend=unique(GetColor_MIR(input)$leg))
-  plot_ly(y = row.names(heatmap.data), x = colnames(heatmap.data)[1:(ncol(heatmap.data)-1)], 
-          z = as.matrix(heatmap.data[,1:(ncol(heatmap.data)-1)]), colors = colorRamp(c("skyblue", "white", "red")), 
+  plot_ly(y = row.names(heatmap.data), x = colnames(heatmap.data)[1:ncol(heatmap.data)], 
+          z = as.matrix(heatmap.data[,1:ncol(heatmap.data)]), colors = colorRamp(c("skyblue", "white", "red")), 
           type = "heatmap", colorbar = list(title = "Log2-Normalized Count")) %>%
     layout(xaxis = list(title = ""),  yaxis = list(title = ""), margin = list(l = 120, b = 100))
   #heatmaply(heatmap.data, scale='none', Rowv=F, Colv=F, subplot_widths=840,
@@ -106,12 +106,13 @@ BarplotMIR <- function(input, data) {
 miR2Gene <- function(input, GeneTE_1.tpm, WT_MIR, miR_Gene.MW.sel){
   NAME <- GetName(input$NAME_MIR)
   tmp <- miR_Gene.MW.sel[!is.na(match(tolower(gsub("mmu-", "", miR_Gene.MW.sel[,1])), tolower(NAME))),]
-  tmp <- subset(tmp, abs(spearman) > 0.85)
+  tmp <- subset(tmp, spearman < -0.7)
   tmp <- merge(tmp, GeneTE_1.tpm[, 7:17], by="gene_name", all.x=T)
   tmp <- merge(tmp, WT_MIR[, 1:11], by="ID", all.x=T)
   colnames(tmp) <- gsub(".y", "_miR", gsub(".x", "_Gene", colnames(tmp)))
   tmp$ID <- gsub("mmu-", "", tmp$ID)
-  tmp$ID <- factor(tmp$ID)
+  tmp$ID <- factor(tmp$ID); tmp$gene_name <- as.character(tmp$gene_name)
+  tmp <- tmp[order(tmp$gene_name),]
   tmp
 }
 

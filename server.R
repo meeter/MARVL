@@ -7,7 +7,11 @@ library(markdown)
 library(heatmaply)
 library(scales)
 library(igraph)
+library(plyr)
+library(scales)
+library(grid)
 library(visNetwork)
+library(htmlwidgets)
 
 load("WT.RData")
 
@@ -48,7 +52,7 @@ shinyServer(function(input, output) {
     d <- event_data("plotly_selected")
     if (is.null(d)) "Selected events appear here (double-click to clear); Negative values indicate negative correlation" 
       else {
-        tmp[d[["pointNumber"]]+1, c("ID","gene_name","spearman","spearman.p", "WT_1_Gene", "WT_2_Gene", "WT_1_miR","WT_2_miR")]
+        tmp[d[["pointNumber"]]+1, c("ID","gene_name","spearman","spearman.p", "WT_1_Gene", "WT_2_Gene", "WT_1_miR","WT_2_miR", "targetScan")]
       }
   })
 

@@ -54,10 +54,7 @@ ggbiplot <- function(pcobj, choices = 1:2, scale = 1, pc.biplot = TRUE,
                       varname.size = 3, varname.adjust = 1.5, 
                       varname.abbrev = FALSE, ...)
 {
-  library(ggplot2)
-  library(plyr)
-  library(scales)
-  library(grid)
+
 
   stopifnot(length(choices) == 2)
 

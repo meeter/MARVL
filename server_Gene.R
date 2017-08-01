@@ -1,4 +1,5 @@
 source("server_GeneralFun.R", local=TRUE)
+library(visNetwork)
 
 ############################################################
 #####Function 1: Get missing Genes
@@ -65,8 +66,8 @@ HeatmapGene <- function(input, GeneTE_1.tpm) {
   #          density.info="none", trace="none",cexRow=1.6,cexCol=1.6, margin=c(2,2),
   #          labRow = heatmap.data[,"gene_name"],main="Heatmap of Interested Genes"
   #legend("topright", fill=unique(ColSideColors), cex=1.2, bty="n", legend=unique(GetColor_Gene(input)$leg))
-  plot_ly(y = row.names(heatmap.data), x = colnames(heatmap.data)[1:(ncol(heatmap.data)-1)], 
-          z = as.matrix(heatmap.data[,1:(ncol(heatmap.data)-1)]), colors = colorRamp(c("skyblue", "white", "red")),
+  plot_ly(y = row.names(heatmap.data), x = colnames(heatmap.data)[1:ncol(heatmap.data)], 
+          z = as.matrix(heatmap.data[,1:ncol(heatmap.data)]), colors = colorRamp(c("skyblue", "white", "red")),
           type = "heatmap", colorbar = list(title = "Log2-TPM"), height = 300+11.66*nrow(heatmap.data)
           ) %>%
     layout(xaxis = list(title = ""),  yaxis = list(title = ""), margin = list(l = 100, b = 100))
@@ -88,12 +89,14 @@ HeatmapGene <- function(input, GeneTE_1.tpm) {
 Gene2miR <- function(input, GeneTE_1.tpm, WT_MIR, miR_Gene.MW.sel){
   NAME <- GetName(input$NAME)
   tmp <- miR_Gene.MW.sel[!is.na(match(tolower(miR_Gene.MW.sel[,2]), tolower(NAME))),]
-  tmp <- subset(tmp, abs(spearman) > 0.85)
+  tmp <- subset(tmp, spearman < -0.7)
   tmp <- merge(tmp, GeneTE_1.tpm[, 7:17], by="gene_name", all.x=T)
   tmp <- merge(tmp, WT_MIR[, 1:11], by="ID", all.x=T)
   colnames(tmp) <- gsub(".y", "_miR", gsub(".x", "_Gene", colnames(tmp)))
   tmp$gene_name <- factor(tmp$gene_name)
-  tmp$ID <- gsub("mmu-", "", tmp$ID)
+  tmp$ID <- gsub("mmu-", "", tmp$ID); tmp$gene_name <- as.character(tmp$gene_name)
+  tmp <- tmp[order(tmp$gene_name),]
+  tmp$targetScan <- paste("http://www.targetscan.org/cgi-bin/targetscan/mmu_71/targetscan.cgi?species=Mouse&gid=", tmp$gene_name, "&mir_sc=&mir_c=&mir_nc=&mir_vnc=&mirg=", sep="")
   tmp
 }
 
@@ -101,8 +104,8 @@ Gene2miR_plot <- function(tmp){
   p <- ggplot(tmp, aes(gene_name, spearman))
   p3 <- p + geom_point(position = position_jitter(width = 0.2))
   p3 <- p3 + coord_flip() + xlab("")
-  ggplotly(p3, width=600, height = 300 + 2.66 * length(unique(tmp$ID)) ) %>% 
-  layout(dragmode = "select")
+  ggplotly(p3, width=600, height = 270 + 2.66 * length(unique(tmp$ID)) ) %>% 
+  layout(dragmode = "select") 
 }
 
   

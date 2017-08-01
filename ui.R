@@ -1,5 +1,7 @@
 library(shiny)
 library(plotly)
+library(shinythemes)
+library(visNetwork)
 
 customHeaderPanel <- function(title,windowTitle=title){
   tagList(
@@ -14,15 +16,15 @@ customHeaderPanel <- function(title,windowTitle=title){
 
 tagList(
   tags$head(
-    tags$style(HTML(" .shiny-output-error-validation {color: darkred; } ")),
+    tags$style(HTML(" .shiny-output-error-validation {color: darkblue; } ")),
     tags$style(".mybuttonclass{background-color:#CD0000;} .mybuttonclass{color: #fff;} .mybuttonclass{border-color: #9E0000;}")
   ),
-  titlePanel(div("MARVL: a Mirna And Rna-seq integrated VisuaLization web-service", align="center", style="color:darkred")),
+  titlePanel(div("MARVL: a Mirna And Rna-seq integrated VisuaLization web-service", align="center", style="color:darkblue")),
   navbarPage(
     
-    theme = "bootstrap.min.united.updated.css",
+    theme = shinytheme("cerulean"),
     title = "",
-   
+    
     ## =========================================================================== ##
     ## Gene TABS
     ## =========================================================================== ##

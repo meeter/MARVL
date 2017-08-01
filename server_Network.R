@@ -18,8 +18,8 @@ plotNetwork <- function(input) {
   ######Order=0: direct neighbor of miss-regulated genes;
   ######Order=1: direct + 1st indirect neighbor of miss-regulated genes
   NAME <- GetName(input$NAME_NET)
-  input_Network <- rbind(Gene.lasso.all.filt[match(NAME, Gene.lasso.all.filt$Regulator),],
-                         Gene.lasso.all.filt[match(NAME, Gene.lasso.all.filt$Gene),])
+  input_Network <- rbind(Gene.lasso.all.filt[!is.na(match(Gene.lasso.all.filt$Regulator, NAME)),],
+                         Gene.lasso.all.filt[!is.na(match(Gene.lasso.all.filt$Gene, NAME)),])
   net <- graph.edgelist(as.matrix(unique(input_Network[!is.na(input_Network[,1]),])[, 1:2]), directed=T)
   ######Vertex Shape and color
   V(net)$Type <- sapply(V(net)$name, function(x) {
@@ -72,12 +72,12 @@ plotNetwork <- function(input) {
   net.Vis <- toVisNetworkData(net)
   net.Vis$nodes$shape <- vertex.shape
   net.Vis$nodes$color <- vertex.color
-  lnodes <- data.frame(label = c("TF", "ER", "miRNA", "Gene"), 
+  lnodes <- data.frame(label = c("TF", "Epigenetic Regulator", "miRNA", "Gene"),  ###For legend
                        shape = c( "circle", "star", "triangle", "square"), 
                        color = "lightblue")
-  visNetwork(nodes = net.Vis$nodes, edges = net.Vis$edges, height = "500px", width="100%") %>% 
+  visNetwork(nodes = net.Vis$nodes, edges = net.Vis$edges, height = "600px", width="100%") %>% 
   visInteraction(dragNodes = T, dragView = T, zoomView = F) %>%
-  visLegend(addNodes = lnodes, useGroups = FALSE, width=0.12, main="Legend") %>%
+  visLegend(addNodes = lnodes, useGroups = FALSE, width=0.10, main="Legend")
   #visOptions(manipulation = TRUE)  
 
   
