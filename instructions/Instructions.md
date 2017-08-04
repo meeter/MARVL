@@ -6,14 +6,14 @@ output:
 
 # Help
 
-The app is hosted on the website: https:
+The app is hosted on the website: https://cclab.shinyapps.io/MARVL/
 
-Code can be found on github: https://
+Code can be found on github: https://github.com/meeter/MARVL
 
 To run this app locally on your machine, download R or RStudio and run the following commands once to set up the environment:
 
 ```
-install.packages(c("shiny", "plotly", "ggplot2", "ggrepel", "reshape2", "heatmaply", "gplots"))
+install.packages(c("shiny", "plotly", "ggplot2", "ggrepel", "reshape2", "heatmaply", "gplots", "visNetwork", "htmlwidgets", "shinythemes","markdown","plyr","scales"))
 ```
 
 You may now run the shiny app with just one command in R:
