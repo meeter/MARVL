@@ -4,7 +4,8 @@ tabPanel("Help",
              h4("Instructions"),
              a("Gene", href = "#Gene"), br(),
              a("miRNA", href = "#miRNA"), br(),
-             a("FAQ", href="#FAQ"), br()
+             a("Network", href = "#Network"), br()
+            
            )
            ),#column
            column(8,
