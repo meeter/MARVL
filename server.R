@@ -119,7 +119,7 @@ shinyServer(function(input, output) {
     tmp <- prcomp(all.res.mds[, 2:7], scale=T, center=F)
     if (is.null(d)) "Selected miRNA appear here (double-click to clear);" 
     else {
-      row.names(tmp$x)[grep(d[["x"]], tmp$x[, "PC1"])]
+      WT_MIR[match(row.names(tmp$x)[grep(d[["x"]], tmp$x[, "PC1"])], gsub("mmu-", "", WT_MIR$ID)), 1:11]
       #tmp$x[intersect(grep(d[["xvar"]], tmp$x[, "PC1"]), grep(d[["yvar"]], tmp$x[, "PC1"])), c("PC1", "PC2")]
       #all.res.mds[d[["pointNumber"]]+1, c("E14_P25","E14_P33","Dgcr8_Log2FC","Drosha_Log2FC","Dicer_Log2FC","Ago12_Log2FC")]
     }
