@@ -8,6 +8,7 @@ library(scales)
 library(igraph)
 library(plyr)
 #library(grid)
+library(markdown)
 library(visNetwork)
 library(htmlwidgets)
 
@@ -53,7 +54,24 @@ shinyServer(function(input, output) {
         tmp[d[["pointNumber"]]+1, c("ID","gene_name","spearman","spearman.p", "WT_1_Gene", "WT_2_Gene", "WT_1_miR","WT_2_miR", "targetScan")]
       }
   })
-
+  #####Intersection -log(p-value) of fisher test by intersecting input gene list with our 6 gene categories
+  output$Fisher_Heatmap <- renderPlotly({
+    tmp <- CateFisher(input, name.overlap.up, name.overlap.down, name.MIG, name.MDG,
+               name.Dicer, name.Ago12, GeneTE_1.tpm) #GeneTE_1.tpm to provide expressed gene names
+    CateFisher.plot(tmp)
+    })
+  output$brush_Fisher <- renderPrint({
+    tmp <- CateFisher(input, name.overlap.up, name.overlap.down, name.MIG, name.MDG,
+                      name.Dicer, name.Ago12, GeneTE_1.tpm)
+    d.Fisher <- event_data("plotly_click")
+    if (is.null(d.Fisher)) "Single-click the bar to display overlapped genes (double-click to clear)" 
+    else {
+      #d.Fisher
+      print(data.frame(Overlapped_Gene = 
+                unlist(strsplit(as.character(tmp[d.Fisher[["x"]], "Overlapped_Gene"]), split=";"))
+                        ), row.names = FALSE)
+      }
+   })
 #################################################################
 #####For Network
 #################################################################  
@@ -100,6 +118,7 @@ shinyServer(function(input, output) {
       tmp[d[["pointNumber"]]+1, c("ID","gene_name","spearman","spearman.p", "WT_1_Gene", "WT_2_Gene", "WT_1_miR","WT_2_miR")]
     }
   })
+  #####Biplot
   output$Dotsplot_Biplot <- renderPlotly({
     NAME <- GetName(input$NAME_MIR)
     tmp <- prcomp(all.res.mds[, 2:7], scale=T, center=F)
@@ -110,12 +129,12 @@ shinyServer(function(input, output) {
       #geom_text_repel(aes(label=all.res.mds$ID, col = all.res.mds$miRTron)) + 
       xlim(-5,3)  + ylim(-2,2)
       #theme(legend.direction = 'horizontal', legend.position = 'bottom') 
-    ggplotly(p.biplot, source="A", height=400, width=800) %>% 
+    ggplotly(p.biplot, source="Biplot", height=400, width=800) %>% 
              layout(dragmode = "select")
             
   })
   output$brush_Biplot <- renderPrint({
-    d <- event_data("plotly_hover", source="A")
+    d <- event_data("plotly_hover", source="Biplot")
     tmp <- prcomp(all.res.mds[, 2:7], scale=T, center=F)
     if (is.null(d)) "Selected miRNA appear here (double-click to clear);" 
     else {

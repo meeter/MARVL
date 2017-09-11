@@ -116,24 +116,24 @@ CateFisher <- function(input, name.overlap.up, name.overlap.down, name.MIG, name
   NAME <- GetName(input$NAME)
   expressed <- GeneTE_1.tpm$gene_name
   name.cate <- c("name.overlap.up", "name.overlap.down", "name.MIG", "name.MDG", "name.Dicer", "name.Ago12", "expressed")
-  Fisher.p <- data.frame(matrix(data=NA, ncol = 7, nrow = 1)) 
-  row.names(Fisher.p) <- "Enrichment Score"
-  colnames(Fisher.p) <- c("Up", "Down",  "MIG", "MDG", "Dicer_Spec", "Ago12_Spec", "Expressed")
-  Fisher.OR <- Fisher.p; Fisher.overlap <- list()
-  for (i in 1 : ncol(Fisher.p)) {
-      a <- length(intersect(tolower(NAME), tolower(get(name.cate[i]))))
+  Fisher <- data.frame(matrix(data=NA, ncol = 4, nrow = 7)) 
+  row.names(Fisher) <- c("Up", "Down",  "MIG", "MDG", "Dicer_Spec", "Ago12_Spec", "Expressed")
+  colnames(Fisher) <- c("Enrichment_Score", "OR", "Number", "Overlapped_Gene")
+  for (i in 1 : nrow(Fisher)) {
+      tmp <- intersect(tolower(NAME), tolower(get(name.cate[i])))
+      Fisher[i, 3] <- a <- length(tmp)
+      Fisher[i, 4] <- paste(GeneTE_1.tpm[match(tmp, tolower(GeneTE_1.tpm$gene_name)), "gene_name"], collapse = ";")
       b <- length(get(name.cate[i])) - a
       c <- length(NAME) - a
       d <- 43629  - a - b - c ##Total Gene: 43629
-      Fisher.p[1, i] <- fisher.test(matrix(data = c(a,b,c,d), ncol=2))$p.value
-      Fisher.OR[1, i] <- fisher.test(matrix(data = c(a,b,c,d), ncol=2))$estimate
-      Fisher.overlap$i <- a
+      Fisher[i, 1] <- fisher.test(matrix(data = c(a,b,c,d), ncol=2))$p.value
+      Fisher[i, 2] <- fisher.test(matrix(data = c(a,b,c,d), ncol=2))$estimate
   }
-  Fisher.p[1,] <- p.adjust(Fisher.p[1,], method='BH')
-  Fisher.p[1,] <- -log(Fisher.p[1,] + 1e-30, 10)
-  for (i in 1 : ncol(Fisher.p)) {
-    if (Fisher.OR[1, i] > 1) {Fisher.p[1, i] <- Fisher.p[1, i]
-      } else {Fisher.p[1, i] <- -1 * Fisher.p[1, i]}
+  Fisher[, 1] <- p.adjust(Fisher[, 1], method='BH')
+  Fisher[, 1] <- -log(Fisher[, 1] + 1e-30, 10)
+  for (i in 1 : nrow(Fisher)) {
+    if (Fisher[i, 2] > 1) {Fisher[i, 1] <- Fisher[i, 1]
+      } else {Fisher[i, 1] <- -1 * Fisher[i, 1]}
   }
   #Heatmap
   #plot_ly(y = row.names(Fisher.p), x = colnames(Fisher.p)[1:ncol(Fisher.p)], 
@@ -144,13 +144,29 @@ CateFisher <- function(input, name.overlap.up, name.overlap.down, name.MIG, name
   #  layout(xaxis = list(title = ""),  yaxis = list(title = ""), margin = list(l = 100, b = 100))
   
   #Barplot by plot_ly
-  p <- plot_ly(x = as.numeric(Fisher.p), #y ~ reorder(colnames(Fisher.p), as.numeric(Fisher.p)),
-               y = colnames(Fisher.p),  
-               type = 'bar', orientation = 'h')  %>%
-       layout(title = "Enrichment Score: > 0, enriched; < 0, depleted", 
-              margin = list(l = 120, b = 100, t=50, r=50))
+  #p <- plot_ly(x = as.numeric(Fisher.p), #y ~ reorder(colnames(Fisher.p), as.numeric(Fisher.p)),
+  #             y = colnames(Fisher.p),  
+  #             type = 'bar', orientation = 'h')  %>%
+  #     layout(title = "Enrichment Score: > 0, enriched; < 0, depleted", 
+  #            margin = list(l = 120, b = 100, t=50, r=50))
   
   #Barplot by ggplot
+  Fisher$Gene_Cate <- row.names(Fisher)
+  #Fisher.long <- melt(Fisher[, c(1,4,5)])
+  Fisher$Gene_Cate <- factor(Fisher$Gene_Cate, levels=c("Up", "Down",  "MIG", "MDG", "Dicer_Spec", "Ago12_Spec", "Expressed"))
+  Fisher
+}
+CateFisher.plot <- function(Fisher)
+{
+  p <- ggplot(Fisher, aes(y = Enrichment_Score, x = Gene_Cate, fill = Gene_Cate, text = paste("Gene:", Overlapped_Gene))) + 
+       geom_bar(stat = "identity") + 
+       theme(legend.position="none") +
+       xlab("") + ylab("")
+  ggplotly(p, tooltip = c("y", "x")) %>% 
+    layout(dragmode = "click", title = "Enrichment Score: > 0, enriched; < 0, depleted", 
+           margin = list(l = 50, b = 50, t=50, r=50)) 
+       #coord_flip()  + 
+  #ggplotly(tooltip = c("text"))
 }
   
 

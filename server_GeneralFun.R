@@ -1,4 +1,4 @@
-GetName <- function(x) {return(unique(unlist(strsplit(x, split="\\n"))))}
+GetName <- function(x) {return(gsub("( )+", "", unique(unlist(strsplit(x, split="\\n")))))}
 
 GetIndex_Gene <- function(x) {
   if (x$Dgcr8) {include.idx_Dgcr8=8:9} else {include.idx_Dgcr8=NA}
