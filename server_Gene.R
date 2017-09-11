@@ -108,6 +108,52 @@ Gene2miR_plot <- function(tmp){
   layout(dragmode = "select") 
 }
 
+############################################################
+#####Function 6: Fisher Heatmap
+############################################################
+CateFisher <- function(input, name.overlap.up, name.overlap.down, name.MIG, name.MDG,
+                       name.Dicer, name.Ago12, GeneTE_1.tpm) {
+  NAME <- GetName(input$NAME)
+  expressed <- GeneTE_1.tpm$gene_name
+  name.cate <- c("name.overlap.up", "name.overlap.down", "name.MIG", "name.MDG", "name.Dicer", "name.Ago12", "expressed")
+  Fisher.p <- data.frame(matrix(data=NA, ncol = 7, nrow = 1)) 
+  row.names(Fisher.p) <- "Enrichment Score"
+  colnames(Fisher.p) <- c("Up", "Down",  "MIG", "MDG", "Dicer_Spec", "Ago12_Spec", "Expressed")
+  Fisher.OR <- Fisher.p; Fisher.overlap <- list()
+  for (i in 1 : ncol(Fisher.p)) {
+      a <- length(intersect(tolower(NAME), tolower(get(name.cate[i]))))
+      b <- length(get(name.cate[i])) - a
+      c <- length(NAME) - a
+      d <- 43629  - a - b - c ##Total Gene: 43629
+      Fisher.p[1, i] <- fisher.test(matrix(data = c(a,b,c,d), ncol=2))$p.value
+      Fisher.OR[1, i] <- fisher.test(matrix(data = c(a,b,c,d), ncol=2))$estimate
+      Fisher.overlap$i <- a
+  }
+  Fisher.p[1,] <- p.adjust(Fisher.p[1,], method='BH')
+  Fisher.p[1,] <- -log(Fisher.p[1,] + 1e-30, 10)
+  for (i in 1 : ncol(Fisher.p)) {
+    if (Fisher.OR[1, i] > 1) {Fisher.p[1, i] <- Fisher.p[1, i]
+      } else {Fisher.p[1, i] <- -1 * Fisher.p[1, i]}
+  }
+  #Heatmap
+  #plot_ly(y = row.names(Fisher.p), x = colnames(Fisher.p)[1:ncol(Fisher.p)], 
+  #        z = as.matrix(Fisher.p[,1:ncol(Fisher.p)]), colors = colorRamp(c("skyblue", "white", "red")),
+  #        type = "heatmap", colorbar = list(title = "Enrichment Score"), height = 300
+  #) 
+  #%>%
+  #  layout(xaxis = list(title = ""),  yaxis = list(title = ""), margin = list(l = 100, b = 100))
+  
+  #Barplot by plot_ly
+  p <- plot_ly(x = as.numeric(Fisher.p), #y ~ reorder(colnames(Fisher.p), as.numeric(Fisher.p)),
+               y = colnames(Fisher.p),  
+               type = 'bar', orientation = 'h')  %>%
+       layout(title = "Enrichment Score: > 0, enriched; < 0, depleted", 
+              margin = list(l = 120, b = 100, t=50, r=50))
+  
+  #Barplot by ggplot
+}
+  
+
   
 
   
