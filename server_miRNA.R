@@ -67,8 +67,9 @@ HeatmapMIR <- function(input, WT_MIR) {
   #          labRow = heatmap.data[,"ID"],main="Heatmap of Interested miRNAs"
   #)
   #legend("topright", fill=unique(ColSideColors), cex=1.2, bty="n", legend=unique(GetColor_MIR(input)$leg))
+  data <- as.matrix(heatmap.data); data <- t(apply(data, 1, function(x){2*(x-mean(x))/(max(x)-min(x))}))
   plot_ly(y = row.names(heatmap.data), x = colnames(heatmap.data)[1:ncol(heatmap.data)], 
-          z = as.matrix(heatmap.data[,1:ncol(heatmap.data)]), colors = colorRamp(c("skyblue", "white", "red")), 
+          z = data, colors = colorRamp(c("skyblue", "white", "red")), 
           type = "heatmap", colorbar = list(title = "Log2-Normalized Count")) %>%
     layout(xaxis = list(title = ""),  yaxis = list(title = ""), margin = list(l = 120, b = 100))
   #heatmaply(heatmap.data, scale='none', Rowv=F, Colv=F, subplot_widths=840,

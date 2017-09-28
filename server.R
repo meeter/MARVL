@@ -56,13 +56,17 @@ shinyServer(function(input, output) {
   })
   #####Intersection -log(p-value) of fisher test by intersecting input gene list with our 6 gene categories
   output$Fisher_Heatmap <- renderPlotly({
-    tmp <- CateFisher(input, name.overlap.up, name.overlap.down, name.MIG, name.MDG,
-               name.Dicer, name.Ago12, GeneTE_1.tpm) #GeneTE_1.tpm to provide expressed gene names
+    tmp <- CateFisher(input, Dgcr8_DEG, Drosha_DEG, Dicer_DEG, Ago12_DEG, #DEGs from pairwise comparison
+                      name.overlap.up, name.overlap.down, #consistently miss-regulated
+                      name.MIG, name.MDG, name.Dicer, name.Ago12, #Specifically up-regulated, one vs rest
+                      GeneTE_1.tpm) #GeneTE_1.tpm to provide expressed gene names
     CateFisher.plot(tmp)
     })
   output$brush_Fisher <- renderPrint({
-    tmp <- CateFisher(input, name.overlap.up, name.overlap.down, name.MIG, name.MDG,
-                      name.Dicer, name.Ago12, GeneTE_1.tpm)
+    tmp <- CateFisher(input, Dgcr8_DEG, Drosha_DEG, Dicer_DEG, Ago12_DEG,
+                      name.overlap.up, name.overlap.down, 
+                      name.MIG, name.MDG, name.Dicer, name.Ago12, 
+                      GeneTE_1.tpm)
     d.Fisher <- event_data("plotly_click")
     if (is.null(d.Fisher)) "Single-click the bar to display overlapped genes (double-click to clear)" 
     else {

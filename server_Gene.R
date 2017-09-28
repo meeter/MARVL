@@ -66,8 +66,9 @@ HeatmapGene <- function(input, GeneTE_1.tpm) {
   #          density.info="none", trace="none",cexRow=1.6,cexCol=1.6, margin=c(2,2),
   #          labRow = heatmap.data[,"gene_name"],main="Heatmap of Interested Genes"
   #legend("topright", fill=unique(ColSideColors), cex=1.2, bty="n", legend=unique(GetColor_Gene(input)$leg))
+  data <- as.matrix(heatmap.data); data <- t(apply(data, 1, function(x){2*(x-mean(x))/(max(x)-min(x))}))
   plot_ly(y = row.names(heatmap.data), x = colnames(heatmap.data)[1:ncol(heatmap.data)], 
-          z = as.matrix(heatmap.data[,1:ncol(heatmap.data)]), colors = colorRamp(c("skyblue", "white", "red")),
+          z = data, colors = colorRamp(c("skyblue", "white", "red")),
           type = "heatmap", colorbar = list(title = "Log2-TPM"), height = 300+11.66*nrow(heatmap.data)
           ) %>%
     layout(xaxis = list(title = ""),  yaxis = list(title = ""), margin = list(l = 100, b = 100))
@@ -109,15 +110,20 @@ Gene2miR_plot <- function(tmp){
 }
 
 ############################################################
-#####Function 6: Fisher Heatmap
+#####Function 6: Category Analysis
 ############################################################
-CateFisher <- function(input, name.overlap.up, name.overlap.down, name.MIG, name.MDG,
-                       name.Dicer, name.Ago12, GeneTE_1.tpm) {
+CateFisher <- function(input, Dgcr8_DEG, Drosha_DEG, Dicer_DEG, Ago12_DEG,
+                       name.overlap.up, name.overlap.down, 
+                       name.MIG, name.MDG, name.Dicer, name.Ago12, 
+                       GeneTE_1.tpm) {
   NAME <- GetName(input$NAME)
   expressed <- GeneTE_1.tpm$gene_name
-  name.cate <- c("name.overlap.up", "name.overlap.down", "name.MIG", "name.MDG", "name.Dicer", "name.Ago12", "expressed")
-  Fisher <- data.frame(matrix(data=NA, ncol = 4, nrow = 7)) 
-  row.names(Fisher) <- c("Up", "Down",  "MIG", "MDG", "Dicer_Spec", "Ago12_Spec", "Expressed")
+  name.cate <- c("Dgcr8_DEG", "Drosha_DEG", "Dicer_DEG", "Ago12_DEG",
+                 "name.overlap.up", "name.overlap.down",
+                 "name.MIG", "name.MDG", "name.Dicer", "name.Ago12", "expressed")
+  Fisher <- data.frame(matrix(data=NA, ncol = 4, nrow = 11)) 
+  row.names(Fisher) <- c("Dgcr8", "Drosha", "Dicer", "Ago12", 
+                         "Up", "Down",  "MIG", "MDG", "Dicer_Spec", "Ago12_Spec", "Expressed")
   colnames(Fisher) <- c("Enrichment_Score", "OR", "Number", "Overlapped_Gene")
   for (i in 1 : nrow(Fisher)) {
       tmp <- intersect(tolower(NAME), tolower(get(name.cate[i])))
@@ -131,7 +137,7 @@ CateFisher <- function(input, name.overlap.up, name.overlap.down, name.MIG, name
   }
   Fisher[, 1] <- p.adjust(Fisher[, 1], method='BH')
   Fisher[, 1] <- -log(Fisher[, 1] + 1e-30, 10)
-  for (i in 1 : nrow(Fisher)) {
+  for (i in 1 : nrow(Fisher)) { ##Enrichment score, enriched: -log(FDR, 10); depleted: log(FDR, 10)
     if (Fisher[i, 2] > 1) {Fisher[i, 1] <- Fisher[i, 1]
       } else {Fisher[i, 1] <- -1 * Fisher[i, 1]}
   }
@@ -147,13 +153,17 @@ CateFisher <- function(input, name.overlap.up, name.overlap.down, name.MIG, name
   #p <- plot_ly(x = as.numeric(Fisher.p), #y ~ reorder(colnames(Fisher.p), as.numeric(Fisher.p)),
   #             y = colnames(Fisher.p),  
   #             type = 'bar', orientation = 'h')  %>%
-  #     layout(title = "Enrichment Score: > 0, enriched; < 0, depleted", 
+  #     layout(title = "Enrichment Score: > 2, enriched; < -2, depleted", 
   #            margin = list(l = 120, b = 100, t=50, r=50))
   
   #Barplot by ggplot
   Fisher$Gene_Cate <- row.names(Fisher)
   #Fisher.long <- melt(Fisher[, c(1,4,5)])
-  Fisher$Gene_Cate <- factor(Fisher$Gene_Cate, levels=c("Up", "Down",  "MIG", "MDG", "Dicer_Spec", "Ago12_Spec", "Expressed"))
+  Fisher$Gene_Cate <- factor(Fisher$Gene_Cate, 
+                            levels=c("Dgcr8", "Drosha", "Dicer", "Ago12", 
+                                     "Up", "Down",  
+                                     "MIG", "MDG", "Dicer_Spec", "Ago12_Spec", 
+                                     "Expressed"))
   Fisher
 }
 CateFisher.plot <- function(Fisher)
@@ -163,7 +173,7 @@ CateFisher.plot <- function(Fisher)
        theme(legend.position="none") +
        xlab("") + ylab("")
   ggplotly(p, tooltip = c("y", "x")) %>% 
-    layout(dragmode = "click", title = "Enrichment Score: > 0, enriched; < 0, depleted", 
+    layout(dragmode = "click", title = "Enrichment Score: > 2, enriched; < -2, depleted", 
            margin = list(l = 50, b = 50, t=50, r=50)) 
        #coord_flip()  + 
   #ggplotly(tooltip = c("text"))
