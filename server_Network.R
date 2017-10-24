@@ -17,11 +17,11 @@ getMissGenes <- function(input, data) {
 plotNetwork <- function(input) {
   ######Order=0: direct neighbor of miss-regulated genes;
   ######Order=1: direct + 1st indirect neighbor of miss-regulated genes
-  NAME <- GetName(input$NAME_NET)
+  NAME <- tolower(GetName(input$NAME_NET))
   if (input$order != FALSE)
-  {input_Network <- rbind(Gene.lasso.all.filt[!is.na(match(Gene.lasso.all.filt$Regulator, NAME)),],
-                         Gene.lasso.all.filt[!is.na(match(Gene.lasso.all.filt$Gene, NAME)),])
-  } else {input_Network <- Gene.lasso.all.filt[!is.na(match(Gene.lasso.all.filt$Gene, NAME)),]}
+  {input_Network <- rbind(Gene.lasso.all.filt[!is.na(match(tolower(Gene.lasso.all.filt$Regulator), NAME)),],
+                         Gene.lasso.all.filt[!is.na(match(tolower(Gene.lasso.all.filt$Gene), NAME)),])
+  } else {input_Network <- Gene.lasso.all.filt[!is.na(match(tolower(Gene.lasso.all.filt$Gene), NAME)),]}
   net <- graph.edgelist(as.matrix(unique(input_Network[!is.na(input_Network[,1]),])[, 1:2]), directed=T)
   ######Vertex Shape and color
   V(net)$Type <- sapply(V(net)$name, function(x) {
